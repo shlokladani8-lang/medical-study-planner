@@ -1,14 +1,14 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import syllabusRoutes from "./routes/syllabus.js";
 
 const app = express();
-const prisma = new PrismaClient();
 const PORT = 3000;
 
 app.use(express.json());
+app.use("/api", syllabusRoutes);
 
-app.get("/", async (req, res) => {
-  res.json({ status: "Backend with Prisma ready" });
+app.get("/", (req, res) => {
+  res.send("Backend running");
 });
 
 app.listen(PORT, () => {
