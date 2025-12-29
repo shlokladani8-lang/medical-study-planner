@@ -6,3 +6,115 @@ datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
 }
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  exams     Exam[]
+  sessions  StudySession[]
+  notes     Note[]
+  createdAt DateTime @default(now())
+}
+
+model Exam {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  name      String
+  examDate  DateTime
+  topics    ExamTopic[]
+  sessions  StudySession[]
+  createdAt DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Subject {
+  id       Int       @id @default(autoincrement())
+  name     String
+  chapters Chapter[]
+}
+
+model Chapter {
+  id        Int     @id @default(autoincrement())
+  subjectId Int
+  name      String
+  order     Int
+  topics    Topic[]
+
+  subject Subject @relation(fields: [subjectId], references: [id])
+}
+
+model Topic {
+  id         Int      @id @default(autoincrement())
+  chapterId  Int
+  name       String
+  importance String
+  exams      ExamTopic[]
+
+  chapter Chapter @relation(fields: [chapterId], references: [id])
+}
+
+model ExamTopic {
+  id        Int @id @default(autoincrement())
+  examId    Int
+  topicId   Int
+  included  Boolean @default(true)
+
+  resources ResourceProgress?
+  revisions RevisionProgress?
+
+  exam  Exam  @relation(fields: [examId], references: [id])
+  topic Topic @relation(fields: [topicId], references: [id])
+}
+
+model ResourceProgress {
+  id          Int @id @default(autoincrement())
+  examTopicId Int
+
+  res1 Boolean @default(false)
+  res2 Boolean @default(false)
+  res3 Boolean @default(false)
+  res4 Boolean @default(false)
+
+  examTopic ExamTopic @relation(fields: [examTopicId], references: [id])
+}
+
+model RevisionProgress {
+  id          Int @id @default(autoincrement())
+  examTopicId Int
+
+  mainStudy Boolean @default(false)
+  rev1      Boolean @default(false)
+  rev2      Boolean @default(false)
+  rev3      Boolean @default(false)
+  rev4      Boolean @default(false)
+  rev5      Boolean @default(false)
+
+  examTopic ExamTopic @relation(fields: [examTopicId], references: [id])
+}
+
+model StudySession {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  examId         Int
+  topicId        Int
+  date           DateTime
+  plannedMinutes Int
+  actualMinutes  Int
+
+  user  User  @relation(fields: [userId], references: [id])
+  exam  Exam  @relation(fields: [examId], references: [id])
+  topic Topic @relation(fields: [topicId], references: [id])
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  topicId   Int
+  content   String
+  updatedAt DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  topic Topic @relation(fields: [topicId], references: [id])
+}
